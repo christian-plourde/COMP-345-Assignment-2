@@ -23,6 +23,14 @@ void MapLoader::loadMap()
   //method to load the map file into a graph object
   //IMPORTANT!!! The master node, i.e. manhattan, must appear first in the file
 
+  //we first need to allow the player to select a map from a list of available files in the directory
+  //we need to show him all the files that are in a given directory
+  //this directory will be the maps folder
+
+  std::cout << "Please select a file from the following list: " << std::endl;
+
+
+
   if(fileIsValid())
   {
     //if the file was valid then we set up the graph object by reading all of the data in the file and assigning nodes

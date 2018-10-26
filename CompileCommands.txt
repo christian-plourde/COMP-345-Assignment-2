@@ -1,0 +1,14 @@
+Compiler:
+-------------------------------------------------------------------------------------------
+g++ -c ../Dice/Dice.cpp ../Player/Player.cpp ../MapLoader/M
+apLoader.cpp ../Lib/GameSetupFunctions.cpp ../Deck/Card.cpp ../Deck/CardDeck.cpp ../Deck/MonsterDeck.cpp ../Deck/Monsters.cpp
+../Deck/Tile.cpp ../Deck/TileDeck.cpp ../Deck/Token.cpp main.cpp ../Lib/RandomNumberGenerator/RandomNumberGenerator.cpp ../Lib
+/Exceptions/MapNotLoadedException.cpp ../Lib/Exceptions/MasterNodeFullException.cpp ../Lib/Exceptions/NotEnoughDestructionRoll
+edException.cpp ../Lib/Exceptions/NotEnoughEnergyException.cpp ../Player/CharacterMethods.cpp -std=c++11
+
+Linker:
+-------------------------------------------------------------------------------------------
+g++ -o main card.o carddeck.o dice.o gamesetupfunctions.o m
+ain.o maploader.o mapnotloadedexception.o masternodefullexception.o monsterdeck.o monsters.o notenoughdestructionrolledexcepti
+on.o notenoughenergyexception.o player.o randomnumbergenerator.o tile.o tiledeck.o token.o charactermethods.o
+PS D:\Computer Science Assignments\COMP 345 Assignments\A2\driver>
