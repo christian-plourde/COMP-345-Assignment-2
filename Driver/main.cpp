@@ -11,6 +11,7 @@ int main()
   std::cout << "------------------------------" << std::endl;
   std::cout << "|      KING OF NEW YORK      |" << std::endl;
   std::cout << "|    BY CHRISTIAN PLOURDE    |" << std::endl;
+  std::cout << "|       AND JACK BURNS       |" << std::endl;
   std::cout << "------------------------------" << std::endl;
 
   MapLoader::setFilePath("D:/C++ Programs/COMP 345/A1/MapLoader/map.map");
