@@ -14,7 +14,7 @@ int main()
   std::cout << "|       AND JACK BURNS       |" << std::endl;
   std::cout << "------------------------------" << std::endl;
 
-  MapLoader::setFilePath("D:/C++ Programs/COMP 345/A1/MapLoader/map.map");
+  MapLoader::setFilePath("../Maps/map.map");
 
   MapLoader::loadMap();
 
@@ -45,6 +45,8 @@ int main()
   GameSetupFunctions::setPlayerStartZones(playerCount, players, MapLoader::getMap()); //set the zones where the players will begin
 
   std::cout << "Ready to begin the game!" << std::endl; //ready to start!
+
+  delete[] players;
 
   return 0;
 }

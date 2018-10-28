@@ -1,4 +1,5 @@
 #include "GameSetupFunctions.h"
+#include "DirectoryFile.h"
 
 int GameSetupFunctions::getNumberOfPlayers()
 {
@@ -186,4 +187,23 @@ void GameSetupFunctions::setPlayerStartZones(int playerCount, Player* players, G
 
   }
 
+}
+
+SinglyLinkedList<DirectoryFile> GameSetupFunctions::listFiles(const std::string& dir)
+{
+  //the linked list that will store all the files in the given directory
+  SinglyLinkedList<DirectoryFile> fileList;
+
+  //now we need to add each file in the directory
+  DirectoryFile toAdd;
+  toAdd.setDir("fuck");
+  toAdd.setFile(" you sir");
+  node<DirectoryFile> nodeToAdd;
+  nodeToAdd.setData(toAdd);
+  fileList.add(&nodeToAdd);
+  node<DirectoryFile>* head = fileList.getHead();
+  DirectoryFile df = head -> getData();
+  std::cout << &df;
+
+  return fileList;
 }

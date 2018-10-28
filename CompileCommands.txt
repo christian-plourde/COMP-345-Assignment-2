@@ -1,10 +1,8 @@
 Compiler:
 -------------------------------------------------------------------------------------------
-g++ -c ../Dice/Dice.cpp ../Player/Player.cpp ../MapLoader/M
-apLoader.cpp ../Lib/GameSetupFunctions.cpp ../Deck/Card.cpp ../Deck/CardDeck.cpp ../Deck/MonsterDeck.cpp ../Deck/Monsters.cpp
+g++ -c ../Dice/Dice.cpp ../Player/Player.cpp ../MapLoader/MapLoader.cpp ../Lib/GameSetupFunctions.cpp ../Deck/Card.cpp ../Deck/CardDeck.cpp ../Deck/MonsterDeck.cpp ../Deck/Monsters.cpp
 ../Deck/Tile.cpp ../Deck/TileDeck.cpp ../Deck/Token.cpp main.cpp ../Lib/RandomNumberGenerator/RandomNumberGenerator.cpp ../Lib
-/Exceptions/MapNotLoadedException.cpp ../Lib/Exceptions/MasterNodeFullException.cpp ../Lib/Exceptions/NotEnoughDestructionRoll
-edException.cpp ../Lib/Exceptions/NotEnoughEnergyException.cpp ../Player/CharacterMethods.cpp -std=c++11
+/Exceptions/MapNotLoadedException.cpp ../Lib/Exceptions/MasterNodeFullException.cpp ../Lib/Exceptions/NotEnoughDestructionRolledException.cpp ../Lib/Exceptions/NotEnoughEnergyException.cpp ../Player/CharacterMethods.cpp -std=c++11
 
 Linker:
 -------------------------------------------------------------------------------------------

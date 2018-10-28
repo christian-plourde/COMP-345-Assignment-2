@@ -1,5 +1,6 @@
 //the implementation file for the map loader class
 #include "MapLoader.h"
+#include "../Lib/GameSetupFunctions.h"
 #include <fstream>
 
 std::string MapLoader::filePath = ""; //initialize filePath to an empty string
@@ -28,8 +29,7 @@ void MapLoader::loadMap()
   //this directory will be the maps folder
 
   std::cout << "Please select a file from the following list: " << std::endl;
-
-
+  GameSetupFunctions::listFiles("hello");
 
   if(fileIsValid())
   {
