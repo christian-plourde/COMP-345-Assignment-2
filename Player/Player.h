@@ -58,6 +58,7 @@ class Player
     void setEnergy(int); //set the energy cube count for the player -- for testing only
     Dice* getDice(); //return a pointer to the dice object that this player is using
     void rollDice(); //a method for the player to roll the dice based on the rules of the game
+    void rollDiceOnce(); //a method to roll the dice only once, used to determine order of play
     void move(); //a method to allow the player to move from one region to another
     void resolveDice(); //a method to resolve the dice that the player has rolled. It should be called when the player
                         // is finished rolling his dice

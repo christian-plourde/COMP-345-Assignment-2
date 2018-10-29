@@ -300,6 +300,15 @@ void Player::rollDice()
 
 }
 
+void Player::rollDiceOnce()
+{
+  //a method to roll only once, used in determining the order of play
+
+  //the player will roll once only
+  dice -> roll();
+  std::cout << dice -> toString() << std::endl;
+}
+
 void Player::move()
 {
   //this method will allow the player to move from one location to another in the graph, as long as it is possible

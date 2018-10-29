@@ -28,96 +28,99 @@ void MapLoader::loadMap()
   //we need to show him all the files that are in a given directory
   //this directory will be the maps folder
 
-  std::cout << "Please select a file from the following list: " << std::endl;
-  GameSetupFunctions::listFiles("hello");
+  bool result = false;
 
-  if(fileIsValid())
+  while(!result)
   {
-    //if the file was valid then we set up the graph object by reading all of the data in the file and assigning nodes
-    std::cout << "Setting up the game board..." << std::endl;
+    GameSetupFunctions::setMap("D:\\Computer Science Assignments\\COMP 345 Assignments\\A2\\Maps");
 
-    Graph<std::string>* graph = new Graph<std::string>(MapLoader::nodeCount);
-
-    //we need to reopen the file
-
-    std::ifstream input; //the input stream associated to out file
-    input.open(MapLoader::filePath.c_str()); //try opening the file
-
-    //we already know it is valid so we can start reading right away
-    std::string line = "";
-    std::string nodeName = "";
-    std::string nodeType = "";
-    int graphIndex = 0;
-
-    //while we still have readable lines
-    while(input >> line)
+    if(fileIsValid())
     {
-      //first get the name of the node
-      if(line == "@node")
+      //if the file was valid then we set up the graph object by reading all of the data in the file and assigning nodes
+      std::cout << "Setting up the game board..." << std::endl;
+
+      Graph<std::string>* graph = new Graph<std::string>(MapLoader::nodeCount);
+
+      //we need to reopen the file
+
+      std::ifstream input; //the input stream associated to out file
+      input.open(MapLoader::filePath.c_str()); //try opening the file
+
+      //we already know it is valid so we can start reading right away
+      std::string line = "";
+      std::string nodeName = "";
+      std::string nodeType = "";
+      int graphIndex = 0;
+
+      //while we still have readable lines
+      while(input >> line)
       {
-        //wipe the nodeName and nodeType clean
-        nodeName = "";
-        nodeType = "";
-
-        //if the line is the node declaration
-        //then go to the next line and the line after that, where the name field is
-        input >> line;
-        input >> line;
-
-        //now that we are at the name field we read until we hit adjacent node
-        while(input >> line && line != "type:")
+        //first get the name of the node
+        if(line == "@node")
         {
-          nodeName = nodeName + line + " ";
-        }
+          //wipe the nodeName and nodeType clean
+          nodeName = "";
+          nodeType = "";
 
-        //now we need to get the type of node that it is
-        while(input >> line && line != "adjacent:")
-        {
-          nodeType = nodeType + line;
-        }
+          //if the line is the node declaration
+          //then go to the next line and the line after that, where the name field is
+          input >> line;
+          input >> line;
 
-        //since we add a space at the end, we need to trim the right side
-        nodeName.erase(nodeName.find_last_not_of(" \n\r\t")+1);
-        //now that we have the name of the node, we need to add it to our graph
-        graph -> setVertexName(nodeName, graphIndex);
-        graph -> setVertexData(nodeType, graphIndex);
-
-        //now that we have added the name of the node we need to add every node it is adjacent to to its adjacency list
-
-        std::string newNeighbor = ""; //the string that will hold the name of the new neighbor to the node
-
-        //while we have not reached a closing brace, keep reading
-        while(input >> line && line != "}")
-        {
-          //if the line contains the word adjacent, then skip that word
-          if(line == "adjacent:")
+          //now that we are at the name field we read until we hit adjacent node
+          while(input >> line && line != "type:")
           {
-            newNeighbor.erase(newNeighbor.find_last_not_of(" \n\r\t")+1);
-            graph -> addNeighbor(newNeighbor, graphIndex); //add the new neighbor
-            newNeighbor = ""; //wipe the newNeighbor field and then continue the iteration
-            continue;
+            nodeName = nodeName + line + " ";
           }
 
-          else
+          //now we need to get the type of node that it is
+          while(input >> line && line != "adjacent:")
           {
-            newNeighbor += line + " ";
+            nodeType = nodeType + line;
           }
-        }
 
-        graphIndex++;
+          //since we add a space at the end, we need to trim the right side
+          nodeName.erase(nodeName.find_last_not_of(" \n\r\t")+1);
+          //now that we have the name of the node, we need to add it to our graph
+          graph -> setVertexName(nodeName, graphIndex);
+          graph -> setVertexData(nodeType, graphIndex);
+
+          //now that we have added the name of the node we need to add every node it is adjacent to to its adjacency list
+
+          std::string newNeighbor = ""; //the string that will hold the name of the new neighbor to the node
+
+          //while we have not reached a closing brace, keep reading
+          while(input >> line && line != "}")
+          {
+            //if the line contains the word adjacent, then skip that word
+            if(line == "adjacent:")
+            {
+              newNeighbor.erase(newNeighbor.find_last_not_of(" \n\r\t")+1);
+              graph -> addNeighbor(newNeighbor, graphIndex); //add the new neighbor
+              newNeighbor = ""; //wipe the newNeighbor field and then continue the iteration
+              continue;
+            }
+
+            else
+            {
+              newNeighbor += line + " ";
+            }
+          }
+
+          graphIndex++;
+        }
       }
+
+      map = graph;
+      graph = NULL;
+      result = true;
     }
 
-    map = graph;
-    graph = NULL;
-  }
-
-  else
-  {
-    //if the file was not valid then we cannot begin the game and we
-    //should exit the Program
-    std::cerr << "Exiting..." << std::endl;
-    exit(1);
+    else
+    {
+      //if the file was not valid then we need to try again
+      result = false;
+    }
   }
 
 }

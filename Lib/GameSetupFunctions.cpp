@@ -1,5 +1,7 @@
 #include "GameSetupFunctions.h"
 #include "DirectoryFile.h"
+#include "../Dice/DiceFaces.h"
+#include <dirent.h>
 
 int GameSetupFunctions::getNumberOfPlayers()
 {
@@ -148,14 +150,14 @@ void GameSetupFunctions::setPlayerStartZones(int playerCount, Player* players, G
         std::cout << "Please enter a number corresponding to the location you would like to start at: ";
         std::cin >> startVertex; //place the input in the startVertex variable
 
-        if(startVertex < 1 || startVertex > graph -> getVertexCount())
+        if((startVertex - 1) < 1 || (startVertex - 1) > graph -> getVertexCount())
         {
           //if the chosen vertex is outside of the bounds that are acceptable, then throw an error
           vertexOutOfBounds = true; //the vertex is out of bounds
           throw startVertex;
         }
 
-        if(graph -> getVertex(startVertex) -> getData() == "master" || graph -> getVertex(startVertex) -> getData() == "inner")
+        if(graph -> getVertex(startVertex - 1) -> getData() == "master" || graph -> getVertex(startVertex - 1) -> getData() == "inner")
         {
           //if the requested vertex is a master or inner type vertex that mean it is either manhattan or one of its inner zones
           //the rules state that a player cannot start in manhattan, and therefore these zones are invalid as start zones
@@ -166,6 +168,7 @@ void GameSetupFunctions::setPlayerStartZones(int playerCount, Player* players, G
         //if we made it here without throwing an exception, then our location is valid
 
         players[i].setZone(startVertex - 1); //set the zone to the one indicated, minus one since in our choices we start at 1
+        std::cout << players[i].getName() << ", you will begin in " << graph -> getVertex(players[i].getZone()) -> toString() << "." << std::endl;
 
         startIsValid = true; //the user has entered a valid start point
       }
@@ -189,21 +192,186 @@ void GameSetupFunctions::setPlayerStartZones(int playerCount, Player* players, G
 
 }
 
-SinglyLinkedList<DirectoryFile> GameSetupFunctions::listFiles(const std::string& dir)
+void GameSetupFunctions::setMap(std::string map_directory)
 {
   //the linked list that will store all the files in the given directory
-  SinglyLinkedList<DirectoryFile> fileList;
+  //we are using the <dirent.h> library
+  DIR* d; //the pointer to the directory
+  struct dirent* e; //an iterator for the directory
 
-  //now we need to add each file in the directory
-  DirectoryFile toAdd;
-  toAdd.setDir("fuck");
-  toAdd.setFile(" you sir");
-  node<DirectoryFile> nodeToAdd;
-  nodeToAdd.setData(toAdd);
-  fileList.add(&nodeToAdd);
-  node<DirectoryFile>* head = fileList.getHead();
-  DirectoryFile df = head -> getData();
-  std::cout << &df;
+  int c = 1; //this will be placed before the name of the file and will allow the player to choose a map file
+  int checkIter = 0; //this will check if we are passed the two first iterations, see comment below
+  int fileChosen; //this will be the file that the user has chosen
+  SinglyLinkedList<DirectoryFile>* fileList = new SinglyLinkedList<DirectoryFile>(); //this will hold the files in the directory for the user to choose from
+  node<DirectoryFile>* toAdd; //a pointer that will be used to hold the node to add to the list of files
 
-  return fileList;
+  //we try to open that directory
+  if((d = opendir(map_directory.c_str())) != NULL)
+  {
+    //if the directory has been found, then we should list all of the files in that directory
+    //we do this with the readdir function
+    while((e = readdir(d)) != NULL)
+    {
+      /*
+      when we show the contents of the directory there are always two elements that we don't want to show
+      The first element is always "." and the second ".."
+      Since we don't want to player to choose these because they mean nothing, we should simply begin showing
+      when we are past two iterations
+      */
+      if(checkIter >= 2)
+      {
+        //if we are past the first two iterations, then we should display the file to the user
+
+        //we should also add that file to a linked list that will hold all the files
+        toAdd = new node<DirectoryFile>();
+
+        //each node should hold a directory file object
+        DirectoryFile fileToAdd; //the new file to add to the list
+        fileToAdd.setDir(map_directory); //the directory of the file
+        fileToAdd.setFile(e -> d_name); //the name of the file
+
+        toAdd -> setData(fileToAdd); //set the data in the node to the new file
+        fileList -> add(toAdd); //add that file to the list
+      }
+
+      else
+      {
+        //if we are not past the first two, then increment the check for the number of iterations
+        checkIter++;
+      }
+    }
+  }
+
+  else
+  {
+    //if the directory was not found, then we should let the user know that the directory does not exist.
+    std::cout << "The specified directory does not exist." << std::endl;
+  }
+
+  //close the directory since we are done
+  closedir(d);
+
+  //now we should show the list to the player
+  node<DirectoryFile>* curr = fileList -> getHead();
+
+  //we want the player to enter the number corresponding to the file that he has chosen
+
+  bool validChoice = false;
+
+  //we will show the list of choices and prompt the player until he has made a valid choice
+  do
+  {
+    //ask him to choose a file from those we will show him
+    //show him the name of the directory as well
+    std::cout << "Maps Directory: " << map_directory << std::endl;
+    std::cout << "Please select a file from the following list: " << std::endl;
+
+    //display the contents of the directory
+    while(curr != NULL)
+    {
+      std::cout << c << ". " << curr -> getData().getFile() << std::endl;
+      curr = curr -> getNext();
+      c++;
+    }
+
+    //now we should ask the player to enter his choice
+    std::cout << "Please enter the number corresponding to the map you wish to play with: ";
+
+    try
+    {
+      //the player enters his choice and we decide if it is valid or not
+      //for the choice to be valid, we need to check if the number entered was between 1 and the count of items in the list
+      std::cin >> fileChosen;
+
+      if(fileChosen < 1 || fileChosen > fileList -> getCount())
+      {
+        throw fileChosen;
+      }
+
+      validChoice = true;
+    }
+
+    catch(int)
+    {
+      //output a message saying that the number was not valid and then start again
+      std::cout << "The number " << fileChosen << " is not valid. Please try again..." << std::endl;
+      validChoice = false;
+    }
+
+  } while(!validChoice);
+
+  //now that the user has selected a valid file, we need to assign that file to the file path for the map loader
+  //first we need a pointer to that directory file in the list
+
+  //start at the first element in the list
+  int k = 1;
+  curr = fileList -> getHead();
+
+  while(k < fileChosen)
+  {
+    k++;
+    curr = curr -> getNext();
+  }
+
+  //now curr is pointing to the file we want to load
+
+  std::cout << "The file you have chosen is: " << curr -> getData().getDir() << "\\" << curr -> getData().getFile() << std::endl;
+
+  //now we should set the file path for the map to load
+  MapLoader::setFilePath(curr -> getData().getDir() + "\\" + curr -> getData().getFile());
+
+  //make sure the file list is cleared from memory
+  delete fileList;
+}
+
+void GameSetupFunctions::setPlayerTurnOrder(int playerCount, Player* players)
+{
+  /*
+  This method's purpose is to set the order in which the players will take their turns
+  this is done by having them roll dice, and the players having rolled more attack cubes go before the ones with less
+  */
+  std::cout << "The order of play will now be determined." << std::endl;
+
+  int attackCount[playerCount]; //this will keep track of how many attack rolls each player has rolled
+
+  //let's initialize everything in the attackCount array to 0
+  for(int k = 0; k < playerCount; k++)
+  {
+    attackCount[k] = 0;
+  }
+
+  //now we should go through each player and have each one roll his dice
+  for(int i = 0; i < playerCount; i++)
+  {
+    //for each player, we roll his dice once and we record the number of attack rolls
+    //ask the player if he is ready to roll
+
+    std::cout << players[i].getName() << ", your turn to roll." << std::endl;
+    system("pause");
+
+    std::cout << "Now rolling the dice for " << players[i].getName() << std::endl;
+    players[i].rollDiceOnce();
+
+    //we now need to count the number of attack rolls that this player got
+    Dice* dice = players[i].getDice();
+
+    enum DiceFaces* result = dice -> getResult();
+
+    //now we count the number of attack rolls for each player and we set that number in the array tracking attack rolls
+    for(int j = 0; j < 6; j++)
+    {
+      if(result[j] == Attack)
+      {
+        attackCount[i]++;
+      }
+    }
+  }
+
+  //now we need to determine the turn order based on the number of attack rolls each player got
+
+  for(int i = 0; i < playerCount; i++)
+  {
+    std::cout << players[i].getName() << ", you rolled " << attackCount[i] << " attack." << std::endl;
+  }
+
 }

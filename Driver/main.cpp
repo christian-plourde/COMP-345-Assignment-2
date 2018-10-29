@@ -14,9 +14,8 @@ int main()
   std::cout << "|       AND JACK BURNS       |" << std::endl;
   std::cout << "------------------------------" << std::endl;
 
-  MapLoader::setFilePath("../Maps/map.map");
-
   MapLoader::loadMap();
+  std::cout << MapLoader::getMap() -> toString() << std::endl;
 
   bool playerCountIsValid = false; // a boolean to store whether or not the playerCount is valid
   int playerCount; //the number of players that will be playing the game
@@ -41,6 +40,9 @@ int main()
 
   //now that we have set the number of players playing the game it is time to initialize their player characters
   Player* players = GameSetupFunctions::initializePlayers(playerCount);
+
+  //now let's set the order in which they will play
+  GameSetupFunctions::setPlayerTurnOrder(playerCount, players);
 
   GameSetupFunctions::setPlayerStartZones(playerCount, players, MapLoader::getMap()); //set the zones where the players will begin
 
