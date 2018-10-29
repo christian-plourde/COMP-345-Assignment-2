@@ -22,12 +22,10 @@ int GameSetupFunctions::getNumberOfPlayers()
   return numberOfPlayers;
 }
 
-Player* GameSetupFunctions::initializePlayers(int numberOfPlayers)
+void GameSetupFunctions::initializePlayers(int numberOfPlayers)
 {
   //a method to initialize all the player characters that will be playing the game
-  //it returns a pointer to a player array that contains all the players
 
-  Player* players = new Player[numberOfPlayers]; //an array to hold all the player objects
   enum Characters* chosenCharacters = new enum Characters[numberOfPlayers]; //an array to hold all the characters that the players have chosen so far
                                                                             //to make sure no character is repeated
 
@@ -38,14 +36,18 @@ Player* GameSetupFunctions::initializePlayers(int numberOfPlayers)
 
   std::cout << "Choose your characters!" << std::endl;
   std::string playerName; //the name of the new player that will be obtained from command line
+  Player* newPlayer; //this will point to the player being set up
 
   for(int i = 0; i<numberOfPlayers; i++)
   {
     //for each player, set the name of the player
     std::cout << "Player " << (i + 1) << " please enter your name: "; //let the player enter his name
     std::cin >> playerName; //get name input
-    players[i].setName(playerName); //set the name of the player
-    std::cout << players[i].getName() << "," << " please choose your character: " << std::endl; //now the player must choose his character
+
+    //create a new player
+    newPlayer = new Player();
+    newPlayer -> setName(playerName); //set the name of the player
+    std::cout << newPlayer -> getName() << "," << " please choose your character: " << std::endl; //now the player must choose his character
 
     int characterChoice = 1; //simply to print a number of selecting that character
 
@@ -99,7 +101,7 @@ Player* GameSetupFunctions::initializePlayers(int numberOfPlayers)
 
 
       //then we need to set the character he has chosen to be his character if it was a valid choice
-      players[i].setCharacter(static_cast<Characters>(characterChosen - 1));
+      newPlayer -> setCharacter(static_cast<Characters>(characterChosen - 1));
       //also modify the entry in the array of already chosen characters
       chosenCharacters[i] = static_cast<Characters>(characterChosen - 1);
     }
@@ -109,17 +111,18 @@ Player* GameSetupFunctions::initializePlayers(int numberOfPlayers)
   //since we no longer need the array of chosen characters, we need to free up the memory
   delete[] chosenCharacters;
   chosenCharacters = NULL;
-
-  return players;
 }
 
-void GameSetupFunctions::setPlayerStartZones(int playerCount, Player* players, Graph<std::string>* graph)
+void GameSetupFunctions::setPlayerStartZones()
 {
   //this is a method to set the start zones for the players based on their choice
 
   //we need to allow each player to set his start zone
+  SinglyLinkedList<Player*>* playerList = Player::players;
+  node<Player*>* curr = playerList -> getHead();
 
-  for(int i = 0; i < playerCount; i++)
+  //we need to set the zone for each player one by one
+  while(curr != NULL)
   {
     //for each player, list all the zones that are available in the graph and allow him to choose the position that he wants
     //assuming that it is valid
@@ -127,12 +130,12 @@ void GameSetupFunctions::setPlayerStartZones(int playerCount, Player* players, G
     int vertexCount = 1; //the number that will be placed next to the vertex when giving the player the choice of his start vertex
 
     //now that all the vertices have been displayed, we need to allow the player to choose the vertex where he wants to start
-    std::cout << players[i].getName() << "," << " please select the location where you would like your adventure to begin: " << std::endl;
+    std::cout << curr -> getData() -> getName() << "," << " please select the location where you would like your adventure to begin: " << std::endl;
 
-    for(int j = 0; j < graph -> getVertexCount(); j++)
+    for(int j = 0; j < MapLoader::getMap() -> getVertexCount(); j++)
     {
       //output the vertex that the player can choose from
-      std::cout << vertexCount << ". " << graph -> getVertex(j) -> toString() << std::endl;
+      std::cout << vertexCount << ". " << MapLoader::getMap() -> getVertex(j) -> toString() << std::endl;
       vertexCount++; //increment the vertex count so that it is displayed properly in the next iteration
     }
 
@@ -150,14 +153,14 @@ void GameSetupFunctions::setPlayerStartZones(int playerCount, Player* players, G
         std::cout << "Please enter a number corresponding to the location you would like to start at: ";
         std::cin >> startVertex; //place the input in the startVertex variable
 
-        if((startVertex - 1) < 1 || (startVertex - 1) > graph -> getVertexCount())
+        if((startVertex - 1) < 1 || (startVertex - 1) > MapLoader::getMap() -> getVertexCount())
         {
           //if the chosen vertex is outside of the bounds that are acceptable, then throw an error
           vertexOutOfBounds = true; //the vertex is out of bounds
           throw startVertex;
         }
 
-        if(graph -> getVertex(startVertex - 1) -> getData() == "master" || graph -> getVertex(startVertex - 1) -> getData() == "inner")
+        if(MapLoader::getMap() -> getVertex(startVertex - 1) -> getData() == "master" || MapLoader::getMap() -> getVertex(startVertex - 1) -> getData() == "inner")
         {
           //if the requested vertex is a master or inner type vertex that mean it is either manhattan or one of its inner zones
           //the rules state that a player cannot start in manhattan, and therefore these zones are invalid as start zones
@@ -167,8 +170,8 @@ void GameSetupFunctions::setPlayerStartZones(int playerCount, Player* players, G
 
         //if we made it here without throwing an exception, then our location is valid
 
-        players[i].setZone(startVertex - 1); //set the zone to the one indicated, minus one since in our choices we start at 1
-        std::cout << players[i].getName() << ", you will begin in " << graph -> getVertex(players[i].getZone()) -> toString() << "." << std::endl;
+        curr -> getData() -> setZone(startVertex - 1); //set the zone to the one indicated, minus one since in our choices we start at 1
+        std::cout << curr -> getData() -> getName() << ", you will begin in " << MapLoader::getMap() -> getVertex(curr -> getData() -> getZone()) -> toString() << "." << std::endl;
 
         startIsValid = true; //the user has entered a valid start point
       }
@@ -188,6 +191,8 @@ void GameSetupFunctions::setPlayerStartZones(int playerCount, Player* players, G
       }
     }
 
+    //move to the next player
+    curr = curr -> getNext();
   }
 
 }
@@ -324,7 +329,7 @@ void GameSetupFunctions::setMap(std::string map_directory)
   delete fileList;
 }
 
-void GameSetupFunctions::setPlayerTurnOrder(int playerCount, Player* players)
+void GameSetupFunctions::setPlayerTurnOrder()
 {
   /*
   This method's purpose is to set the order in which the players will take their turns
@@ -332,28 +337,32 @@ void GameSetupFunctions::setPlayerTurnOrder(int playerCount, Player* players)
   */
   std::cout << "The order of play will now be determined." << std::endl;
 
-  int attackCount[playerCount]; //this will keep track of how many attack rolls each player has rolled
+  int attackCount[Player::players -> getCount()]; //this will keep track of how many attack rolls each player has rolled
 
   //let's initialize everything in the attackCount array to 0
-  for(int k = 0; k < playerCount; k++)
+  for(int k = 0; k < Player::players -> getCount(); k++)
   {
     attackCount[k] = 0;
   }
 
   //now we should go through each player and have each one roll his dice
-  for(int i = 0; i < playerCount; i++)
+  SinglyLinkedList<Player*>* players = Player::players;
+  node<Player*>* curr = players -> getHead();
+  int i = 0; //to track the position in the attack count array
+
+  while(curr != NULL)
   {
     //for each player, we roll his dice once and we record the number of attack rolls
     //ask the player if he is ready to roll
 
-    std::cout << players[i].getName() << ", your turn to roll." << std::endl;
+    std::cout << curr -> getData() -> getName() << ", your turn to roll." << std::endl;
     system("pause");
 
-    std::cout << "Now rolling the dice for " << players[i].getName() << std::endl;
-    players[i].rollDiceOnce();
+    std::cout << "Now rolling the dice for " << curr -> getData() -> getName() << std::endl;
+    curr -> getData() -> rollDiceOnce();
 
     //we now need to count the number of attack rolls that this player got
-    Dice* dice = players[i].getDice();
+    Dice* dice = curr -> getData() -> getDice();
 
     enum DiceFaces* result = dice -> getResult();
 
@@ -365,13 +374,11 @@ void GameSetupFunctions::setPlayerTurnOrder(int playerCount, Player* players)
         attackCount[i]++;
       }
     }
+
+    curr = curr -> getNext();
+    i++;
   }
 
   //now we need to determine the turn order based on the number of attack rolls each player got
-
-  for(int i = 0; i < playerCount; i++)
-  {
-    std::cout << players[i].getName() << ", you rolled " << attackCount[i] << " attack." << std::endl;
-  }
 
 }

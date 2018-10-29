@@ -18,7 +18,6 @@
 class Player
 {
   private:
-    static SinglyLinkedList<Player*>* players; // a singly linked list containing a pointer to each player
     static Characters* chosenCharacters; // an array holding all the characters that have been chosen so far so that no character is played by more than one player
     static int playerCount; //the number of players that are playing the game
     int playerNumber; //player 1, player 2, etc.
@@ -64,6 +63,7 @@ class Player
                         // is finished rolling his dice
     void buyCards(CardDeck*); //a method to allow the player to buy cards
     SinglyLinkedList<Card>* getCards(); //gets the list of cards the player has in his hand
+    static SinglyLinkedList<Player*>* players; // a singly linked list containing a pointer to each player
 };
 
 #endif

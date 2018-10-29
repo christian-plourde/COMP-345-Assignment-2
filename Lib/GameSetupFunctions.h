@@ -14,10 +14,10 @@
 namespace GameSetupFunctions
 {
   int getNumberOfPlayers(); //a method to get the number of players that will be playing the game
-  Player* initializePlayers(int); //a method to initialize a player character, accepts an integer containing the number of players
-  void setPlayerStartZones(int, Player*, Graph<std::string>*); //sets the zones in which the players will start the game (int is the number of players)
+  void initializePlayers(int); //a method to initialize a player character, accepts an integer containing the number of players
+  void setPlayerStartZones(); //sets the zones in which the players will start the game (int is the number of players)
   void setMap(std::string); //a method for the players to choose the map they wish to play with
-  void setPlayerTurnOrder(int, Player*); //a method to set the order that the turns will be taken in
+  void setPlayerTurnOrder(); //a method to set the order that the turns will be taken in
 }
 
 #endif

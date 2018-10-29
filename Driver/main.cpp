@@ -39,16 +39,15 @@ int main()
   }
 
   //now that we have set the number of players playing the game it is time to initialize their player characters
-  Player* players = GameSetupFunctions::initializePlayers(playerCount);
+  GameSetupFunctions::initializePlayers(playerCount);
 
   //now let's set the order in which they will play
-  GameSetupFunctions::setPlayerTurnOrder(playerCount, players);
+  GameSetupFunctions::setPlayerTurnOrder();
 
-  GameSetupFunctions::setPlayerStartZones(playerCount, players, MapLoader::getMap()); //set the zones where the players will begin
+  GameSetupFunctions::setPlayerStartZones(); //set the zones where the players will begin
 
   std::cout << "Ready to begin the game!" << std::endl; //ready to start!
 
-  delete[] players;
 
   return 0;
 }
