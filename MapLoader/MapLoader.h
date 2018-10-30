@@ -10,7 +10,7 @@
 class MapLoader
 {
   public:
-    static void loadMap(); //loads a .map file from the passed file path into the static graph field of the class
+    static void loadMap(); //loads a .map file from a directory into the static graph field of the class
     static void setFilePath(std::string);
     static std::string getFilePath();
     static Graph<std::string>* getMap(); //get the graph containing the game board

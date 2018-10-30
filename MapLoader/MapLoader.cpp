@@ -2,6 +2,7 @@
 #include "MapLoader.h"
 #include "../Lib/GameSetupFunctions.h"
 #include <fstream>
+#include "../Lib/Exceptions/DirectoryNotFoundException.h"
 
 std::string MapLoader::filePath = ""; //initialize filePath to an empty string
 int MapLoader::nodeCount = 0; //initialize the nodeCount to 0
@@ -24,15 +25,46 @@ void MapLoader::loadMap()
   //method to load the map file into a graph object
   //IMPORTANT!!! The master node, i.e. manhattan, must appear first in the file
 
-  //we first need to allow the player to select a map from a list of available files in the directory
-  //we need to show him all the files that are in a given directory
-  //this directory will be the maps folder
-
   bool result = false;
+  bool validDirectory = false;
+  std::string directory = ""; //the path to the maps directory
 
   while(!result)
   {
-    GameSetupFunctions::setMap("D:\\Computer Science Assignments\\COMP 345 Assignments\\A2\\Maps");
+    //we first need to allow the player to select a map from a list of available files in the directory of his choice
+    //let's set that choice
+    validDirectory = false;
+    while(!validDirectory)
+    {
+      //while the player has not entered a valid directory, we should keep going
+      //we ask the player to enter the path to a directory
+      std::cout << "Please enter the name of the directory where the maps are stored: ";
+      std::getline(std::cin, directory);
+
+      try
+      {
+        GameSetupFunctions::setMap(directory);
+      }
+
+      catch(DirectoryNotFoundException e)
+      {
+        //if the directory does not exist, let the player know
+        //and try again
+        std::cout << e.what() << std::endl;
+        validDirectory = false;
+        continue;
+      }
+
+      catch(int)
+      {
+        //if the directory contained no files, then we are here
+        std::cout << "The directory was empty." << std::endl;
+        validDirectory = false;
+        continue;
+      }
+
+      validDirectory = true;
+    }
 
     if(fileIsValid())
     {

@@ -14,6 +14,7 @@ int main()
   std::cout << "|       AND JACK BURNS       |" << std::endl;
   std::cout << "------------------------------" << std::endl;
 
+  //MapLoader::loadMap("D:\\Computer Science Assignments\\COMP 345 Assignments\\A2\\Maps");
   MapLoader::loadMap();
   std::cout << MapLoader::getMap() -> toString() << std::endl;
 

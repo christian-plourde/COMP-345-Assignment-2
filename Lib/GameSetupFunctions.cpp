@@ -1,6 +1,7 @@
 #include "GameSetupFunctions.h"
 #include "DirectoryFile.h"
 #include "../Dice/DiceFaces.h"
+#include "Exceptions/DirectoryNotFoundException.h"
 #include <dirent.h>
 
 int GameSetupFunctions::getNumberOfPlayers()
@@ -249,8 +250,14 @@ void GameSetupFunctions::setMap(std::string map_directory)
 
   else
   {
-    //if the directory was not found, then we should let the user know that the directory does not exist.
-    std::cout << "The specified directory does not exist." << std::endl;
+    //if the directory was not found, then we should throw an appropriate exception
+    throw DirectoryNotFoundException();
+  }
+
+  //if we got to the end and the fileList is empty, then we should throw an exception
+  if(fileList -> getCount() == 0)
+  {
+    throw fileList -> getCount();
   }
 
   //close the directory since we are done
@@ -337,7 +344,7 @@ void GameSetupFunctions::setPlayerTurnOrder()
   */
   std::cout << "The order of play will now be determined." << std::endl;
 
-  int attackCount[Player::players -> getCount()]; //this will keep track of how many attack rolls each player has rolled
+  int* attackCount = new int[Player::players -> getCount()]; //this will keep track of how many attack rolls each player has rolled
 
   //let's initialize everything in the attackCount array to 0
   for(int k = 0; k < Player::players -> getCount(); k++)
@@ -380,5 +387,5 @@ void GameSetupFunctions::setPlayerTurnOrder()
   }
 
   //now we need to determine the turn order based on the number of attack rolls each player got
-
+  delete attackCount;
 }
