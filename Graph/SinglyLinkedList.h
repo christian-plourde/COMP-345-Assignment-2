@@ -21,8 +21,9 @@ public:
 	~SinglyLinkedList(); //destructor
 	void add(node<T>*); //add a node to the head of the list
 	void addLast(node<T>*); //add a node to the end of the list
-	void remove(node<T>*); //remove a node from the list
+	void remove(node<T>*); //remove a node from the list and delete it
 	node<T>* search(node<T>*); //search the list for a particular node
+	node<T>* pull(node<T>*); //this method pulls out the passed node from the linked list
 	bool contains(node<T>*); //determines if the passed node is in the list
 	std::string toString(); //display the linked list's contents
 	int getCount(); //return the number of elements in the list
@@ -185,6 +186,56 @@ node<T>* SinglyLinkedList<T>::search(node<T>* toFind)
 		return NULL;
 	}
 
+}
+
+template <class T>
+node<T>* SinglyLinkedList<T>::pull(node<T>* toRemove)
+{
+	//first check if the passed node is contained in the list
+	if (this->contains(toRemove))
+	{
+		//if the node is in the list we need to remove it
+		//start at the head
+		node<T>* currentNode = head;
+
+		//if the node to remove is the head, then we just set the head to the next node after the head
+		//and delete the pointer to remove
+
+		if (head == toRemove)
+		{
+			//move the currentNode to the next node
+			currentNode = currentNode->getNext();
+			//set the head to the currentNode, which is the second node in the list
+			head = currentNode;
+			//decrease the count by one
+			count--;
+			return toRemove; //return the node that was removed
+		}
+
+		//if our node is not the head
+		int i = 0;
+		for (i = 0; i < count; i++)
+		{
+			if (currentNode->getNext() == toRemove)
+			{
+				//if the next node is the one we want to remove, set the next of the node we are at to the next of the node to remove
+				currentNode->setNext(toRemove->getNext());
+
+				//decrease count by one and return the node
+				count--;
+				return toRemove;
+			}
+
+			//move down the list
+			currentNode = currentNode->getNext();
+		}
+	}
+
+	else
+	{
+		//otherwise we have nothing to do
+		return NULL;
+	}
 }
 
 template <class T>

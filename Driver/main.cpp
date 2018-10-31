@@ -45,7 +45,7 @@ int main()
   //now let's set the order in which they will play
   GameSetupFunctions::setPlayerTurnOrder();
 
-  GameSetupFunctions::setPlayerStartZones(); //set the zones where the players will begin
+  //GameSetupFunctions::setPlayerStartZones(); //set the zones where the players will begin
 
   std::cout << "Ready to begin the game!" << std::endl; //ready to start!
 

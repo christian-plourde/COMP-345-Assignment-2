@@ -2,9 +2,7 @@
 #define DICE_H
 
 #include "DiceFaces.h"
-#include "../Lib/RandomNumberGenerator/RandomNumberGenerator.h"
 #include <string>
-#include <time.h>
 
 class Dice
 {

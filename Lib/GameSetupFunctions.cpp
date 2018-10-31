@@ -3,6 +3,7 @@
 #include "../Dice/DiceFaces.h"
 #include "Exceptions/DirectoryNotFoundException.h"
 #include <dirent.h>
+#include "../Dice/GreenDice.h"
 
 int GameSetupFunctions::getNumberOfPlayers()
 {
@@ -345,6 +346,8 @@ void GameSetupFunctions::setPlayerTurnOrder()
   std::cout << "The order of play will now be determined." << std::endl;
 
   int* attackCount = new int[Player::players -> getCount()]; //this will keep track of how many attack rolls each player has rolled
+  //the player must also roll the green dice, therefore we should create a green dice object as well
+  GreenDice gd;
 
   //let's initialize everything in the attackCount array to 0
   for(int k = 0; k < Player::players -> getCount(); k++)
@@ -363,6 +366,7 @@ void GameSetupFunctions::setPlayerTurnOrder()
     //ask the player if he is ready to roll
 
     std::cout << curr -> getData() -> getName() << ", your turn to roll." << std::endl;
+    std::cout << curr -> getData() -> getName() << ", press any key to roll the black dice." << std::endl;
     system("pause");
 
     std::cout << "Now rolling the dice for " << curr -> getData() -> getName() << std::endl;
@@ -382,10 +386,158 @@ void GameSetupFunctions::setPlayerTurnOrder()
       }
     }
 
+    //we also need to roll the green dice and add the attack faces from those dice to the result
+    std::cout << curr -> getData() -> getName() << ", press any key to roll the green dice." << std::endl;
+    system("pause");
+
+    gd.roll();
+    std::cout << gd.toString() << std::endl;
+
+    //the result of the green dice
+    enum DiceFaces* gr = gd.getResult();
+
+    for(int m = 0; m < 2; m++)
+    {
+      //we now cycle through the result of the green dice and we add to the attack count if an attack face was rolled
+      if(gr[m] == Attack)
+      {
+        attackCount[i]++;
+      }
+    }
+
     curr = curr -> getNext();
     i++;
   }
 
   //now we need to determine the turn order based on the number of attack rolls each player got
-  delete attackCount;
+
+  //now that we have the attack rolls stored for all the players we need to assign their turn order
+
+  //it will be important to keep track of which players have already been assigned a position in the turn order
+  //this will be stored in an array of booleans
+
+  bool* turnSet = new bool[players -> getCount()];
+  //this will hold a value indicating whether or not the player has been assigned a turn order
+  //intially every element should be false;
+  for(int p = 0; p < players -> getCount(); p++)
+  {
+    turnSet[p] = false;
+  }
+
+  //every player needs a position, therefore this process should be executed as many times as there are players
+
+  for(int tp = 0; tp < players -> getCount(); tp++)
+  {
+    //now we need to go through the array attackCount and find the maximum number but only for those players that
+    //still don't have their position set
+    int maxAttack = -1;
+    int playerWhoRolledMax = 0;
+
+    //get the max attack rolled for the players who don't already have their turn set
+    for(int loc = 0; loc < players -> getCount(); loc++)
+    {
+      //only consider the attack rolled if that player still doesn't have his turn set
+      if(attackCount[loc] > maxAttack && !turnSet[loc])
+      {
+        maxAttack = attackCount[loc];
+        playerWhoRolledMax = loc;
+      }
+    }
+
+    //now we need to assign the turn number to the player who rolled the max
+    curr = players -> getHead();
+
+    //we need to go down the linked list until we find the player who rolled the max, namely we do loc iterations
+    int pl = 0;
+
+    //go down the list until we have done playerWhoRolledMax iterations
+    while(pl != playerWhoRolledMax)
+    {
+      curr = curr -> getNext();
+      pl++;
+    }
+
+    //now curr should be holding the node with the player who rolled the highest number
+    curr -> getData() -> setPlayerNumber(tp+1);
+
+    turnSet[playerWhoRolledMax] = true;
+  }
+
+  //to make iterating through the linked list easier in the main game loop, now that the turn order has been set
+  //we should reorder the elements in the linked list
+
+
+
+  //to do this, we will cycle through our list and sort it by player order
+
+  //we need to go all the way down to the tail the first time in our search, then one less iteration every time
+  int it = 0; //this will keep track of which iteration we are on
+  node<Player*>* nodeWithMaxPlayerCount = players -> getHead(); //this is a pointer that will hold
+                                                                //the node that has the max player count
+
+  while(players -> getCount() - it > 0)
+  {
+    //reset the curr node to the head of the list
+    curr = players -> getHead();
+    while(curr != NULL)
+    {
+      //while going through the linked list, we are looking for the node that has a player count of
+      //players -> getCount() - it
+
+      if(curr -> getData() -> getPlayerNumber() == players -> getCount() - it)
+      {
+        //if we have found the node with the correct player number, point our maxplayercount node to it
+
+        nodeWithMaxPlayerCount = curr;
+      }
+
+      curr = curr -> getNext();
+    }
+
+    //now that the node with the max player count is being pointed to, we should pull it from the list and add it
+    //back at the start
+
+    nodeWithMaxPlayerCount = players -> pull(nodeWithMaxPlayerCount);
+    nodeWithMaxPlayerCount -> setNext(NULL);
+    players -> add(nodeWithMaxPlayerCount);
+
+    it++;
+  }
+
+  //now we should output the turn order:
+
+  curr = players -> getHead();
+
+  int ord = 1; //only used for the output message
+
+  while(curr != NULL)
+  {
+    std::string playerOrder = "";
+    ord = curr -> getData() -> getPlayerNumber();
+
+    //this will be appended to the output to show where in the order of play the players will play
+    switch(ord)
+    {
+      case 1: playerOrder = "first";
+              break;
+      case 2: playerOrder = "second";
+              break;
+      case 3: playerOrder = "third";
+              break;
+      case 4: playerOrder = "fourth";
+              break;
+      case 5: playerOrder = "fifth";
+              break;
+      case 6: playerOrder = "sixth";
+              break;
+    }
+
+    //output the list of the turn order
+    std::cout << curr -> getData() -> getName() << ", you will go " << playerOrder << "." << std::endl;
+    curr = curr -> getNext();
+  }
+
+  //cleaning up the dynamic arrays
+  delete[] turnSet;
+  delete[] attackCount;
 }

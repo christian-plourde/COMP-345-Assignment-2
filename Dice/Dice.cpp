@@ -1,8 +1,11 @@
 #include "Dice.h"
+#include "../Lib/RandomNumberGenerator/RandomNumberGenerator.h"
+#include "DiceFacesMethods.h"
+#include <time.h>
 #include <iostream>
 #include <cstddef>
-#include <string>
-#include "DiceFacesMethods.h"
+
+
 
 Dice::Dice()
 {
