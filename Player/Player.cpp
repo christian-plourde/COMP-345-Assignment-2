@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include "../Lib/Exceptions/NodeFullException.h"
 #include "Player.h"
 
 //declaring the static variables
@@ -316,8 +317,28 @@ void Player::move()
   int region = 0; //the index of the region where the player wants to move (these match the index of the region in the array)
                   //in the graph
 
+  //if the zone the player wishes to move to already contains two players, he cannot move there.
+  //to know if there are already two players in that zone, all we need to do is check where every other player is
+  //before allowing the player to move. The positions of each player will be stored in an array.
+
+  int playerPositions[playerCount];
+
+  //now we should go through the linked list of players and fill in the array appropriately
+  node<Player*>* curr = Player::players -> getHead();
+  int i = 0; //to track where in the array we are storing
+
+  while(curr != NULL)
+  {
+    playerPositions[i] = curr -> getData() -> getZone();
+    i++;
+    curr = curr -> getNext();
+  }
+
+  //now that the position of each player has been recorded, let's set the new location for the player
+
   do
   {
+    int playersInRegion = 0; //this will track the number of players in the region the player wants to move to
     //this do while loop will prompt the user to enter the name of the region where he would like to move
     std::cout << "Please enter the number corresponding to the region where you would like to move: " << std::endl;
 
@@ -367,6 +388,19 @@ void Player::move()
         throw MasterNodeFullException();
       }
 
+      //now check the position of every player and count the ones that are in the region the player wishes to move to
+      for(int i = 0; i < playerCount; i++)
+      {
+        if(playerPositions[i] == (region - 1))
+        {
+          playersInRegion++;
+        }
+      }
+
+      //if there are two or more players in that region, then the player cannot move there
+      if(playersInRegion >= 2)
+        throw NodeFullException();
+
       //if we made it here then the selected node was valid
       this -> setZone(region - 1);
       regionIsValid = true;
@@ -384,6 +418,13 @@ void Player::move()
     {
       //if the vertex that the player wants to move to is an inner vertex, then we should send a message and repeat
       std::cout << "You cannot move to a node that is within the goal region! Please try again..." << std::endl;
+      regionIsValid = false;
+    }
+
+    catch(NodeFullException e)
+    {
+      //print the error message for having 2 or more players in a region already
+      std::cout << e.what() << std::endl;
       regionIsValid = false;
     }
 
