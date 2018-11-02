@@ -2,6 +2,7 @@
 #include "DirectoryFile.h"
 #include "../Dice/DiceFaces.h"
 #include "Exceptions/DirectoryNotFoundException.h"
+#include "Exceptions/NodeFullException.h"
 #include <dirent.h>
 #include "../Dice/GreenDice.h"
 
@@ -122,6 +123,7 @@ void GameSetupFunctions::setPlayerStartZones()
   //we need to allow each player to set his start zone
   SinglyLinkedList<Player*>* playerList = Player::players;
   node<Player*>* curr = playerList -> getHead();
+  
 
   //we need to set the zone for each player one by one
   while(curr != NULL)
