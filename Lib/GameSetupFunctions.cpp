@@ -123,7 +123,23 @@ void GameSetupFunctions::setPlayerStartZones()
   //we need to allow each player to set his start zone
   SinglyLinkedList<Player*>* playerList = Player::players;
   node<Player*>* curr = playerList -> getHead();
-  
+
+  //we will also need an array to track where each player is starting to make sure that the constraint of not
+  //having more than two players per zone is not violated
+  //this array should have a size equal to the number of players and should be initialized with values that are
+  //impossible for the player to choose anyway, say -1, to make sure that there is no overlap
+
+  int* playerPositions = new int[playerList -> getCount()];
+
+  //now initialize everything to -1
+
+  for(int i = 0; i < playerList -> getCount(); i++)
+  {
+    playerPositions[i] = -1;
+  }
+
+  //we will also need an int to track which player we are on
+  int currPlayer = 0;
 
   //we need to set the zone for each player one by one
   while(curr != NULL)
@@ -172,11 +188,25 @@ void GameSetupFunctions::setPlayerStartZones()
           throw startVertex;
         }
 
+        //we should also verify if the node that the player wants to move to already has two players in it
+        //compare the vertex the player wants to start at to the position of each other player
+        int nbOfPlayersInStartZone = 0; //this will track the number of players in the zone where the player wants to start
+
+        for(int i = 0; i < playerList -> getCount(); i++)
+        {
+          if(playerPositions[i] == (startVertex - 1))
+            nbOfPlayersInStartZone++;
+        }
+
+        //if there are two or more players in that zone, then the start zone is not valid and we should throw an exception
+        if(nbOfPlayersInStartZone >= 2)
+          throw NodeFullException();
+
         //if we made it here without throwing an exception, then our location is valid
 
         curr -> getData() -> setZone(startVertex - 1); //set the zone to the one indicated, minus one since in our choices we start at 1
         std::cout << curr -> getData() -> getName() << ", you will begin in " << MapLoader::getMap() -> getVertex(curr -> getData() -> getZone()) -> toString() << "." << std::endl;
-
+        playerPositions[currPlayer] = startVertex - 1;
         startIsValid = true; //the user has entered a valid start point
       }
 
@@ -193,12 +223,20 @@ void GameSetupFunctions::setPlayerStartZones()
           std::cout << "The desired location is within the master zone! Please try again..." << std::endl;
         }
       }
+
+      catch(NodeFullException e)
+      {
+        std::cout << e.what() << std::endl;
+      }
     }
 
     //move to the next player
     curr = curr -> getNext();
+    currPlayer++;
   }
 
+  //finally make sure we clear the memory
+  delete[] playerPositions;
 }
 
 void GameSetupFunctions::setMap(std::string map_directory)
