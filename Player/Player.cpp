@@ -383,7 +383,7 @@ void Player::move()
 
       if(MapLoader::getMap() -> getVertex(region - 1) -> getData() == "master")
       {
-        //if a player wants to move to manhattan, then throw an exception that is handled by the calling method to check
+        //if a player wants to move to manhattan, then throw an exception to check
         //if it is possible to move to manhattan or not.
         throw MasterNodeFullException();
       }
@@ -428,6 +428,74 @@ void Player::move()
       regionIsValid = false;
     }
 
+    catch(MasterNodeFullException e)
+    {
+      //we need to check if it is possible for the player to move to manhattan or not
+      int innerNodeCount = 0;
+
+      //count all the nodes that are within the goal region
+      for(int i = 0; i < MapLoader::getMap() -> getVertexCount(); i++)
+      {
+        if(MapLoader::getMap() -> getVertex(i) -> getData() == "inner")
+        {
+          innerNodeCount++;
+        }
+      }
+
+      int innerNodes[innerNodeCount];
+
+      int c = 0;
+
+      for(int i = 0; i < MapLoader::getMap() -> getVertexCount(); i++)
+      {
+        //go through the list again and place the appropriate vertex indices in the array
+        if(MapLoader::getMap() -> getVertex(i) -> getData() == "inner")
+        {
+          innerNodes[c] = i;
+          c++;
+        }
+      }
+
+      //now that we have all of our inner node indices in an array, we should go through the list and see if any position is available
+      node<Player*>* curr = Player::players -> getHead();
+      bool alreadyFull = true;
+      int playersAlreadyThere = 0;
+
+      for(int i = 0; i < innerNodeCount && alreadyFull; i++)
+      {
+        playersAlreadyThere = 0;
+        alreadyFull = false;
+
+        while(curr != NULL)
+        {
+          if(curr -> getData() -> getZone() == innerNodes[i])
+          {
+            playersAlreadyThere++;
+          }
+          curr = curr -> getNext();
+        }
+
+        if(playersAlreadyThere >= 2)
+        {
+          alreadyFull = true;
+          regionIsValid = false;
+          continue;
+        }
+
+        else
+        {
+          alreadyFull = false;
+          this -> setZone(region - 1);
+          regionIsValid = true;
+          break;
+        }
+      }
+
+      if(alreadyFull)
+      {
+          std::cout << "There is no place to move within the goal region! Please try again..." << std::endl;
+      }
+    }
 
   } while(!regionIsValid);
 
