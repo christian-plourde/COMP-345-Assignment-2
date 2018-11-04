@@ -17,7 +17,7 @@ int main()
   std::cout << "\n";
   std::cout << "\n";
 
-  MapLoader::setFilePath("map.map"); //load the map since we will need it in order to resolve the dice effects
+  MapLoader::setFilePath("../../Maps/map.map"); //load the map since we will need it in order to resolve the dice effects
   MapLoader::loadMap(); // load the map
   std::cout << MapLoader::getMap() -> toString() << std::endl;
 
