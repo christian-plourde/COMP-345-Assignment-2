@@ -34,7 +34,7 @@ CardDeck::CardDeck() {
 			specialCards[j].setHowTo(stringToHowTo(h));
 			getline(file, e);
 			specialCards[j].setEffect(e);
-			/*if (n.size() > longestNameSize)			
+			/*if (n.size() > longestNameSize)
 				longestNameSize = n.size();*/
 		}
 		while (getline(file, i, ',')) {				// while still cards to create, create them
@@ -124,7 +124,7 @@ void CardDeck::Print(SinglyLinkedList<Card> *list) {
 			c = n->getData();
 			int id = c.getID();
 			cout << "  ";
-			if (id < 10)					
+			if (id < 10)
 				cout << id << "  ";		// print one more space if single id, to pad correctly
 			else
 				cout << id << " ";
