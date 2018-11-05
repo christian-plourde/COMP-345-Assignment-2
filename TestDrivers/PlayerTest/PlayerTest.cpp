@@ -36,6 +36,8 @@ int main()
   //now we show the move functionality for player 2
   player2 -> move();
 
+  std::cout << "Moved to: " << MapLoader::getMap() -> getVertex(player2 -> getZone()) -> toString() << std::endl;
+
   std::cout << player2 -> toString() << std::endl;
 
   //now let's test the buy cards method

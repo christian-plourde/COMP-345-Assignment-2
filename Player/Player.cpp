@@ -449,7 +449,7 @@ void Player::move()
       for(int i = 0; i < MapLoader::getMap() -> getVertexCount(); i++)
       {
         //go through the list again and place the appropriate vertex indices in the array
-        if(MapLoader::getMap() -> getVertex(i) -> getData() == "inner")
+        if(MapLoader::getMap() -> getVertex(i) -> getData() == "inner" && MapLoader::getMap() -> getVertex(i) -> getData() != "master")
         {
           innerNodes[c] = i;
           c++;
@@ -485,7 +485,7 @@ void Player::move()
         else
         {
           alreadyFull = false;
-          this -> setZone(region - 1);
+          this -> setZone(innerNodes[i]);
           regionIsValid = true;
           break;
         }
@@ -498,7 +498,6 @@ void Player::move()
     }
 
   } while(!regionIsValid);
-
 }
 
 SinglyLinkedList<Card>* Player::getCards()
@@ -686,7 +685,7 @@ void Player::resolveDice()
         {
           //if the player is in the same zone as the player who rolled, then we need to decrease his health as well as the
           //who rolled
-          currentNode -> getData() -> setHealth(currentNode -> getData() -> getHealth() - 1);
+          currentNode -> getData() -> setHealth(currentNode -> getData() -> getHealth() - unitsInArea);
         }
         currentNode = currentNode -> getNext();
       }
@@ -726,7 +725,7 @@ void Player::resolveDice()
 
         //now that we have the number of units in that players area
         //we should decrease that player's health by the number of units in the area
-        currentNode -> getData() -> setHealth(currentNode -> getData() -> getHealth() - 1);
+        currentNode -> getData() -> setHealth(currentNode -> getData() -> getHealth() - unitsInArea);
         currentNode = currentNode -> getNext();
       }
 
@@ -755,7 +754,7 @@ void Player::resolveDice()
     for(int i = 0; i < 45; i++)
     {
       //if the tile is not a unit and it is in the same borough as the player, then is is available for destruction
-      if(!tileDeck[i].getIsUnit() && tileDeck[i].getZone() == this -> zone)
+      if(tileDeck[i].getZone() == this -> zone)
       {
          node<Tile>* toAdd = new node<Tile>(); //create a new node to add to the list
          toAdd -> setData(tileDeck[i]); //set the data in the new node to the tile
