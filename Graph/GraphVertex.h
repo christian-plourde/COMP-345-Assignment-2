@@ -3,7 +3,8 @@
 
 #include <iostream>
 #include <string>
-#include "../Lib/StringFunctions.h"
+//#include "../Lib/StringFunctions.h"
+#include "StringFunctions.h"
 
 template <class T>
 class GraphVertex
@@ -66,6 +67,12 @@ template <class T>
 void GraphVertex<T>::setName(std::string newName)
 {
   name = newName;
+}
+
+template <class T>
+std::string GraphVertex<T>::getName()
+{
+	return name;
 }
 
 template <class T>

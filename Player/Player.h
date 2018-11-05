@@ -65,6 +65,8 @@ class Player
     void buyCards(CardDeck*); //a method to allow the player to buy cards
     SinglyLinkedList<Card>* getCards(); //gets the list of cards the player has in his hand
     static SinglyLinkedList<Player*>* players; // a singly linked list containing a pointer to each player
+	
+	void removePlayer(enum Characters);
 };
 
 #endif
