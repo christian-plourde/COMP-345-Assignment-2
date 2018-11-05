@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <string>
-//#include "../Lib/StringFunctions.h"
-#include "StringFunctions.h"
+#include "../Lib/StringFunctions.h"
+//#include "StringFunctions.h"
 
 template <class T>
 class GraphVertex
