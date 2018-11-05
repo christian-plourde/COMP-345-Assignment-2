@@ -136,6 +136,11 @@ void Player::setEnergy(int energy)
   this -> energy = energy;
 }
 
+int Player::getEnergy()
+{
+  return energy;
+}
+
 void Player::setHealth(int health)
 {
   //make sure that the value is greater than or equal to zero
@@ -853,7 +858,35 @@ void Player::resolveDice()
           //we should decrease the destructionCount by the durability of the building
           destructionCount -= toDestroy.getDurability();
           toDestroy.Print(); //show the tile before destruction
+
+          int rew = toDestroy.getReward();
+
+          //we also need to assign the rewards for the player who destroyed the building
+
+          if(toDestroy.getRewardType() == star)
+          {
+            if(this -> victoryPoints + rew <= 20)
+              this -> victoryPoints = this -> victoryPoints + rew;
+
+            else
+              this -> victoryPoints = 20;
+          }
+
+          if(toDestroy.getRewardType() == heart)
+          {
+            if(this -> health + rew <= 10)
+              this -> health = this -> health + rew;
+            else
+              this -> health = 10;
+          }
+
+          if(toDestroy.getRewardType() == energy)
+          {
+            this -> energy = this -> energy + rew;
+          }
+
           //we now need to flip the tile that was destroyed
+
 
           //this code is the same as in the flip tile method in the tiledeck, but I dont have to create an object to do it
           switch (toDestroy.getUnit())
@@ -884,7 +917,7 @@ void Player::resolveDice()
           }
 
           //now that we have found the node, we can remove it
-          buildings -> remove(current);
+          buildings -> pull(current);
 
           std::cout << "Building destroyed!" << std::endl;
 
