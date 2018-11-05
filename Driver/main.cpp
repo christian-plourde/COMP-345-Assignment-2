@@ -112,49 +112,51 @@ int main()
 						playerZone = curr->getData()->getZone();
 						if (playerZone <= 6) {
 							playersInManhatten = true;
-							break;
-							curr = curr->getNext();
+							break;	
 						}
-						// IF NO PLAYERS IN MANHATTEN, MOVE PLAYER THERE
-						if (!playersInManhatten) {
-							std::cout << "No one in Manhatten, you must move there." << std::endl;
-							if (Player::getPlayerCount() < 5)
-								playerData->setZone(1);
-							else
-								playerData->setZone(4);
-						}
-						else {
-							// AT LEAST ONE PLAYER IN MANHATTEN, GIVE PLAYER CHOICE AS TO WHERE TO MOVE
-							bool badInput = true;
-							string answer;
-							std::cout << "There is already one monster in Manhatten." << std::endl;
-							std::cout << "Would you like to move(M) from or stay(S) in " << MapLoader::getMap()->getVertex(playerData->getZone())->getName() << "? (M/S): ";
-							while (badInput) {
-								try {
-									std::cin >> answer;
-									if (!(answer == "M" || answer == "S")) {
-										throw answer;
-									}
-									badInput = false;
+						curr = curr->getNext();
+					}
+					// IF NO PLAYERS IN MANHATTEN, MOVE PLAYER THERE
+					if (!playersInManhatten) {
+						std::cout << "No one in Manhatten, you must move there." << std::endl;
+						if (Player::getPlayerCount() < 5)
+							playerData->setZone(1);
+						else
+							playerData->setZone(4);
+					}
+					else {
+						// AT LEAST ONE PLAYER IN MANHATTEN, GIVE PLAYER CHOICE AS TO WHERE TO MOVE
+						bool badInput = true;
+						string answer;
+						std::cout << "There is already one monster in Manhatten." << std::endl;
+						std::cout << "Would you like to move(M) from or stay(S) in " << MapLoader::getMap()->getVertex(playerData->getZone())->getName() << "? (M/S): ";
+						while (badInput) {
+							try {
+								std::cin >> answer;
+								if (!(answer == "M" || answer == "S")) {
+									throw answer;
 								}
-								catch (string s) {
-									std::cout << "The answer " << s << " is not valid. Please enter either M or S: ";
-								}
+								badInput = false;
 							}
-							if (answer == "M")
-								playerData->move();
+							catch (string s) {
+								std::cout << "The answer " << s << " is not valid. Please enter either M or S: ";
+							}
 						}
+						if (answer == "M")
+							playerData->move();
 					}
 
 				}
 
 				// DEAL WITH ATTACK DICE
 				// PLAYER IS NOT IN MANHATTEN, ALLOW MANHATTEN PLAYERS TO MOVE OUT
+				bool attack = false;
 				playerZone = playerData->getZone();
 				if (playerZone >= 7) {
 					std::cout << "\n\nAllowing Manhatten players that were attacked to leave Manhattan\n";
 					for (int i = 0; i < 6; i++) {
 						if (playerData->getDice()->getResult()[i] == Attack) {
+							attack = true;
 							curr = Player::players->getHead();
 							while (curr) {
 								playerZone = curr->getData()->getZone();
@@ -181,6 +183,8 @@ int main()
 								curr = curr->getNext();
 							}
 						}
+						if (attack)
+							break;
 					}
 					std::cout << "\n\nBack to " << playerData->getName() << "'s turn\n";
 				}
@@ -197,7 +201,23 @@ int main()
 			}
 		}
 	}
-	std::cout << "CONGRATULATIONS!! " << Player::players->getHead()->getData()->getName() << " HAS WON!" << std::endl;
+
+	// WINNING DUE TO BEING ONLY PLAYER LEFT
+	if(Player::players->getCount() == 1)
+		std::cout << "CONGRATULATIONS!! " << Player::players->getHead()->getData()->getName() << " HAS WON!" << std::endl;
+	else {
+		// WINNING DUE TO GETTING 20 VICTORY POINTS
+		// HAVE TO FIND THAT WINNER AND DISPLAY THEM
+		playerNodes = Player::players->getHead();
+		while (playerNodes) {
+			playerData = playerNodes->getData();
+			if (playerData->getVictoryPoints() == WINNING_VICTORY_POINTS) {
+				std::cout << "CONGRATULATIONS!! " << playerData->getName() << " HAS WON!" << std::endl;
+				break;
+			}
+			playerNodes = playerNodes->getNext();
+		}
+	}
 	// CLEAN UP POINTERS
 	delete[] deck;
 	deck = NULL;
